@@ -1,0 +1,42 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+
+const app = express();
+app.use(bodyParser.json());
+
+const tasks = [];
+
+app.post('/tasks', (req, res) => {
+    const task = req.body;
+    tasks.push(task);
+    res.json(task);
+});
+
+app.put('/tasks/:task_id', (req, res) => {
+    const taskIndex = tasks.findIndex(task => task.id === req.params.task_id);
+    if (taskIndex !== -1) {
+        tasks[taskIndex] = { ...tasks[taskIndex], ...req.body };
+        res.json(tasks[taskIndex]);
+    } else {
+        res.status(404).json({ error: 'Task not found' });
+    }
+});
+
+app.delete('/tasks/:task_id', (req, res) => {
+    const taskIndex = tasks.findIndex(task => task.id === req.params.task_id);
+    if (taskIndex !== -1) {
+        tasks.splice(taskIndex, 1);
+        res.json({ success: true });
+    } else {
+        res.status(404).json({ error: 'Task not found' });
+    }
+});
+
+app.get('/tasks', (req, res) => {
+    res.json(tasks);
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+});
